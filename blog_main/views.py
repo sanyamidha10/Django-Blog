@@ -1,4 +1,25 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from blogs.models import Category, Blog
+from .forms import RegistrationForm
 
 def home(request):
-    return render(request, 'home.html')
+    featured_posts = Blog.objects.filter(is_featured=True, status='Published').order_by('updated_at')
+    posts = Blog.objects.filter(is_featured=False, status = 'Published')
+    context = {
+        'featured_posts': featured_posts,
+        'posts': posts,
+    }
+    return render(request, 'home.html', context)
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('register')
+    else:
+        form = RegistrationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'register.html', context)
