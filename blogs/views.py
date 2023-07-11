@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Blog, Category, Comment
 from django.db.models import Q
@@ -23,6 +23,15 @@ def blogs(request, slug):
 
     comments = Comment.objects.filter(blog = single_blog)
     comment_count = comments.count()
+
+    if request.method == 'POST':
+        comment = Comment()
+        comment.user = request.user
+        comment.blog = single_blog
+        comment.comment = request.POST['comment']
+        comment.save()
+        return HttpResponseRedirect(request.path_info)
+
 
     context = {
         'comments' : comments,
